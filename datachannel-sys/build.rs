@@ -58,12 +58,27 @@ fn main() {
             .build("src/lib.rs");
 
         // Link static openssl
-        println!("cargo:rustc-link-lib=static=crypto");
-        println!("cargo:rustc-link-lib=static=ssl");
+        let target = env::var("TARGET").unwrap();
+        let prefix = if target.contains("windows-msvc") {
+            "lib"
+        }
+        else {
+            ""
+        };
+        println!("cargo:rustc-link-lib=static={}crypto", prefix);
+        println!("cargo:rustc-link-lib=static={}ssl", prefix);
 
         // Link static libjuice
         println!(
             "cargo:rustc-link-search=native={}/build/deps/libjuice",
+            out_dir
+        );
+        println!(
+            "cargo:rustc-link-search=native={}/build/deps/libjuice/Debug",
+            out_dir
+        );
+        println!(
+            "cargo:rustc-link-search=native={}/build/deps/libjuice/Release",
             out_dir
         );
         println!("cargo:rustc-link-lib=static=juice-static");
@@ -73,10 +88,22 @@ fn main() {
             "cargo:rustc-link-search=native={}/build/deps/usrsctp/usrsctplib",
             out_dir
         );
+        println!(
+            "cargo:rustc-link-search=native={}/build/deps/usrsctp/usrsctplib/Debug",
+            out_dir
+        );
+        println!(
+            "cargo:rustc-link-search=native={}/build/deps/usrsctp/usrsctplib/Release",
+            out_dir
+        );
         println!("cargo:rustc-link-lib=static=usrsctp");
 
         // Link static libdatachannel
         println!("cargo:rustc-link-search=native={}/build", out_dir);
+        // Link static libdatachannel
+        println!("cargo:rustc-link-search=native={}/build/Debug", out_dir);
+        // Link static libdatachannel
+        println!("cargo:rustc-link-search=native={}/build/Release", out_dir);
         println!("cargo:rustc-link-lib=static=datachannel-static");
     } else {
         // Link dynamic libdatachannel
